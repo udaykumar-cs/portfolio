@@ -15,6 +15,11 @@ window.addEventListener('load', () => {
         // If no loader, initialize animations right away
         initGSAPAnimations();
     }
+    
+    // Initialize Counter Animations (About Page)
+    if (typeof initCounterAnimations === 'function') {
+        initCounterAnimations();
+    }
 
     // Add Aura Blobs dynamically
     const blob1 = document.createElement('div');
@@ -396,4 +401,34 @@ if (resumeTabBtns.length > 0) {
             showTab(hash);
         }
     });
+}
+/* --- COUNTER ANIMATIONS (About Page) --- */
+function initCounterAnimations() {
+    const counters = document.querySelectorAll('.counter');
+    if (counters.length === 0) return;
+
+    const animate = (counter) => {
+        const targetValue = +counter.getAttribute('data-target');
+        const count = +counter.innerText;
+        // Adjust speed based on target
+        const increment = Math.max(targetValue / 100, 1);
+
+        if (count < targetValue) {
+            counter.innerText = Math.min(Math.ceil(count + increment), targetValue);
+            setTimeout(() => animate(counter), 20);
+        } else {
+            counter.innerText = targetValue;
+        }
+    };
+
+    const counterObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animate(entry.target);
+                counterObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    counters.forEach(counter => counterObserver.observe(counter));
 }
